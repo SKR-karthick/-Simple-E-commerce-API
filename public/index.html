@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-commerce API Client</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .section { margin-bottom: 20px; }
+    button { padding: 8px 16px; margin: 5px; }
+    input, select { padding: 8px; margin: 5px; }
+  </style>
+</head>
+<body style="
+  background: linear-gradient(135deg, #1E1A2E 0%, #5C4F6E 50%, #B3A8C9 100%);
+  color: #F3F0FC;
+  font-family: 'Helvetica Neue', sans-serif;
+">
+  <div class="section">
+    <h1 style="text-align: center;"> Simple E-commerce API System</h1>
+    <h2>Authentication</h2>
+    <input id="username" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <select id="role">
+      <option value="customer">Customer</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="section">
+    <h2>Products</h2>
+    <input id="search" type="text" placeholder="Search products">
+    <input id="category" type="text" placeholder="Category">
+    <button onclick="getProducts()">Get Products</button>
+    <div id="products"></div>
+  </div>
+
+  <div id="admin-section" style="display: none;">
+  <h2>Admin: Manage Products</h2>
+  <h3>Add Product</h3>
+  <input type="text" id="product-name" placeholder="Product Name">
+  <input type="number" id="product-price" placeholder="Price">
+  <input type="text" id="product-category" placeholder="Category">
+  <input type="text" id="product-description" placeholder="Description">
+  <button onclick="addProduct()">Add Product</button>
+  <h3>Update Product</h3>
+  <input type="number" id="update-product-id" placeholder="Product ID">
+  <input type="text" id="update-product-name" placeholder="New Product Name">
+  <input type="number" id="update-product-price" placeholder="New Price">
+  <input type="text" id="update-product-category" placeholder="New Category">
+  <input type="text" id="update-product-description" placeholder="New Description">
+  <button onclick="updateProduct()">Update Product</button>
+  <h3>Delete Product</h3>
+  <input type="number" id="delete-product-id" placeholder="Product ID">
+  <button onclick="deleteProduct()">Delete Product</button>
+</div>
+
+  <div class="section">
+    <h2>Cart</h2>
+    <input id="cart-product-id" type="text" placeholder="Product ID">
+    <input id="cart-quantity" type="number" placeholder="Quantity">
+    <button onclick="addToCart()">Add to Cart</button>
+    <button onclick="getCart()">View Cart</button>
+    <div id="cart"></div>
+  </div>
+
+  <div class="section">
+    <h2>Orders</h2>
+    <button onclick="createOrder()">Create Order</button>
+    <button onclick="getOrders()">View Orders</button>
+    <div id="orders"></div>
+  </div>
+
+<script>
+  let token = null;
+
+  // Hide admin section on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('admin-section').style.display = 'none';
+  });
+
+  async function register() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, role })
+    });
+    alert((await response.json()).message);
+  }
+
+  async function login() {
+    // Hide admin section before login attempt
+    document.getElementById('admin-section').style.display = 'none';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      token = data.token;
+      console.log('JWT Token:', token);
+      alert(data.message || 'Logged in');
+      if (token) {
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        if (decoded.role === 'admin') {
+          document.getElementById('admin-section').style.display = 'block';
+        }
+      }
+    } else {
+      alert(data.message || 'Login failed');
+    }
+  }
+
+  async function getProducts() {
+    const search = document.getElementById('search').value;
+    const category = document.getElementById('category').value;
+    const response = await fetch(`/api/products?page=1&limit=10${search ? '&search=' + search : ''}${category ? '&category=' + category : ''}`);
+    const data = await response.json();
+    document.getElementById('products').innerHTML = JSON.stringify(data, null, 2);
+  }
+
+  async function addProduct() {
+    const product = {
+      name: document.getElementById('product-name').value,
+      price: parseFloat(document.getElementById('product-price').value),
+      category: document.getElementById('product-category').value,
+      description: document.getElementById('product-description').value
+    };
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(product)
+    });
+    const data = await response.json();
+    alert(data.message || 'Product added');
+  }
+
+  async function updateProduct() {
+    const productId = parseInt(document.getElementById('update-product-id').value);
+    const product = {
+      name: document.getElementById('update-product-name').value,
+      price: parseFloat(document.getElementById('update-product-price').value),
+      category: document.getElementById('update-product-category').value,
+      description: document.getElementById('update-product-description').value
+    };
+    if (!productId || productId <= 0) {
+      alert('Please enter a valid Product ID');
+      return;
+    }
+    const response = await fetch(`/api/products/${productId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(product)
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert('Product updated');
+      getProducts(); // Refresh product list
+    } else {
+      alert(data.message || 'Error updating product');
+    }
+  }
+
+  async function deleteProduct() {
+    const productId = parseInt(document.getElementById('delete-product-id').value);
+    if (!productId || productId <= 0) {
+      alert('Please enter a valid Product ID');
+      return;
+    }
+    const response = await fetch(`/api/products/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert('Product deleted');
+      getProducts(); // Refresh product list
+    } else {
+      alert(data.message || 'Error deleting product');
+    }
+  }
+
+  async function addToCart() {
+    const productId = parseInt(document.getElementById('cart-product-id').value);
+    const quantity = parseInt(document.getElementById('cart-quantity').value) || 1;
+    if (!productId || productId <= 0) {
+      alert('Please enter a valid Product ID');
+      return;
+    }
+    if (quantity <= 0) {
+      alert('Quantity must be a positive integer');
+      return;
+    }
+    const response = await fetch('/api/cart/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ productId, quantity })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      document.getElementById('cart').innerHTML = JSON.stringify(data, null, 2);
+    } else {
+      alert(data.message || 'Error adding to cart');
+    }
+  }
+
+  async function getCart() {
+    const response = await fetch('/api/cart', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await response.json();
+    document.getElementById('cart').innerHTML = JSON.stringify(data, null, 2);
+  }
+
+  async function createOrder() {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+    alert(data.message || 'Order created');
+  }
+
+  async function getOrders() {
+    const response = await fetch('/api/orders', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    document.getElementById('orders').innerHTML = JSON.stringify(await response.json(), null, 2);
+  }
+</script>
+</body>
+</html>

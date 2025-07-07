@@ -1,0 +1,127 @@
+### Register Admin
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "KarthickAdmin",
+  "password": "admin123",
+  "role": "admin"
+}
+
+### Register Customer
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "RajaUser",
+  "password": "password123",
+  "role": "customer"
+}
+
+### Login Admin
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "KarthickAdmin",
+  "password": "admin123"
+}
+
+
+### Login Customer
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "RajaUser",
+  "password": "password123"
+}
+
+
+### List Products (Public)
+GET http://localhost:3000/api/products?page=1&limit=10
+
+### Add Product 1 (Admin)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUxODY4NDYwfQ.aB_JLB8cEevmYMSpNA1m7QqUWCppvjicqZl_TtOQ7yo
+
+{
+  "name": "Laptop",
+  "price": 40000,
+  "category": "Electronics",
+  "description": "Lenovo IdeaPad Gaming"
+}
+
+### Add Product 2 (Admin)
+POST http://localhost:3000/api/products
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUxODY4NDYwfQ.aB_JLB8cEevmYMSpNA1m7QqUWCppvjicqZl_TtOQ7yo
+
+{
+  "name": "Phone",
+  "price": 20000,
+  "category": "Electronics",
+  "description": "Smartphone"
+}
+
+### Update Product (Admin)
+PUT http://localhost:3000/api/products/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUxODY4NDYwfQ.aB_JLB8cEevmYMSpNA1m7QqUWCppvjicqZl_TtOQ7yo
+
+{
+  "name": "Laptop Pro",
+  "price": 45000,
+  "category": "Electronics",
+  "description": "Updated Lenovo IdeaPad Gaming"
+}
+
+### Delete Product and Resequence (Admin)
+DELETE http://localhost:3000/api/products/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzUxODY4NDYwfQ.aB_JLB8cEevmYMSpNA1m7QqUWCppvjicqZl_TtOQ7yo
+
+### List Products After Delete (Public)
+GET http://localhost:3000/api/products?page=1&limit=10
+
+### Add to Cart (Customer)
+POST http://localhost:3000/api/cart/add
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+
+{
+  "productId": 3,
+  "quantity": 2
+}
+
+### Update Cart Item (Customer)
+PUT http://localhost:3000/api/cart/update
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+
+{
+  "productId": 2,
+  "quantity": 3
+}
+
+### Remove from Cart (Customer)
+DELETE http://localhost:3000/api/cart/remove/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+
+### View Cart (Customer)
+GET http://localhost:3000/api/cart
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+
+### Create Order (Customer)
+POST http://localhost:3000/api/orders
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+
+
+
+### List Orders (Customer)
+GET http://localhost:3000/api/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
+### Test Admin-Only Access (Customer)
+DELETE http://localhost:3000/api/products/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNzUxODczMzkzfQ.cGSfAjpUA7TSW0tJfqXxuN7iOp8cOGtpsX83pqfbnds
